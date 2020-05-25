@@ -4,54 +4,90 @@ const input = document.querySelector('#form-todo input[type="text"]')
 const deleteAllIcon = document.querySelector('.delete-all i')
 const locStorage = window.localStorage;
 
-todos = JSON.parse(locStorage.getItem('todos'));
-if (!todos) todos = []
+const getTodos = () => {
+    todos = JSON.parse(locStorage.getItem('todos'));
+    if (!todos) todos = []
+}
 
-const addItemToMarkup = item => {
-    itemsList = document.querySelector('.items-list')
+const isDuplicate = (val) => {
+    const lis = document.querySelectorAll('.items-list > li')
+   
+    for (li of lis ) {
+        if (val === li.textContent) {
+            return true;
+        }
+    }
+    return false;    
+}
+
+const addItemToMarkup = (itemText, isChecked) => {
+    let classToAdd;
+    if (isChecked) {
+        classToAdd = 'row checkout'
+    } else {
+        classToAdd = 'row'
+    }
+    itemsList = document.querySelector('.items-list');
+
     itemsList.insertAdjacentHTML('beforeend', 
     `
-    <li class="row">${item}<span class="icon-span"><i class="fas fa-trash-alt"></i></span></li>
+    <li class="${classToAdd}">${itemText}<span class="icon-span"><i class="fas fa-trash-alt"></i></span></li>
     `)
 }
 
 document.addEventListener('DOMContentLoaded', (e) => {
-    e.preventDefault();
-    if (todos.length > 0) {
+
+    getTodos();
+    if (todos.length > 0 && todos instanceof Array) {
         for (todo of todos) {
-            addItemToMarkup(todo)
+            addItemToMarkup(todo.itemText, todo.isChecked)
         }
     }
     input.focus()
+    e.preventDefault();
 });
 
 const clickFunction = (e) => {
-
-    e.preventDefault();
+    
     const items = Array.from(main.children[0].children)
     
     if (items.includes(e.target)) {
-        if (e.type === 'click') {
-            e.target.classList.toggle('checkout')
+        
+        e.target.classList.toggle('checkout')
+        getTodos();
+
+        for (todo of todos) {
+            if (todo.itemText === e.target.textContent) {
+                todo.isChecked = !todo.isChecked;
+                break;
+            }
         } 
+        locStorage.setItem('todos', JSON.stringify(todos))
         return;  
-     }
+    }
 
      if (e.target.nodeName === 'SPAN' || e.target.nodeName === 'I') {
         const item = e.target.parentNode.parentNode
+        const updatedList = todos.filter(todo => todo.itemText !== item.textContent)
+
         item.parentNode.removeChild(item)
-        todos = JSON.parse(locStorage.getItem('todos'));
-        const updatedList = todos.filter(todo => todo !== item.textContent)
+
         locStorage.setItem('todos', JSON.stringify(updatedList))
         
         input.focus();
      }
+
+    e.preventDefault();
+    // e.stopPropagation();
 }
 
 main.addEventListener('click', clickFunction);
 
 deleteAllIcon.addEventListener('click', (e) => {
-    e.preventDefault();
+
+    // e.preventDefault();
+    // e.stopPropagation();
+
     locStorage.removeItem('todos');
     itemsList = document.querySelectorAll('.row')
     
@@ -60,24 +96,33 @@ deleteAllIcon.addEventListener('click', (e) => {
             item.parentNode.removeChild(item)
         })
     }
+    input.focus();
 })
 
 document.addEventListener('keypress', (e) => {
-   
-    if (e.which === 13 && input.value) {
 
-        addItemToMarkup(input.value);
+    // e.preventDefault();
+    // e.stopPropagation();
+    getTodos();
 
-        todos.push(input.value)
-        locStorage.setItem('todos', JSON.stringify(todos))
+    if (e.which === 13 && input.value ) {
 
-        console.log(locStorage.todos)
+        if (!isDuplicate(input.value)) {
+            
+            const newItem = ({
+                    itemText: input.value, 
+                    isChecked: false
+            })
+            todos.push(newItem)
+            locStorage.setItem('todos', JSON.stringify(todos))
 
-        input.value = ''
-        input.focus();
-        
-        e.preventDefault();
-        return;
+            addItemToMarkup(newItem.itemText, newItem.check);
+
+            input.value = ''
+            input.focus();
+        }
+            e.preventDefault();
+
     }
 })
 
