@@ -46,9 +46,9 @@ body {
 }
 
 #form-todo input[type="text"] {
-    width: 50%;
+    width: 90%;
     min-width: 170px;
-    max-width: 600px;
+    max-width: 35rem;
     outline: medium;
     font: inherit;
     color: inherit;
@@ -76,9 +76,9 @@ body {
 
 .row {
     display: flex;
-    width: 50%;
+    width: 90%;
     min-width: 170px;
-    max-width: 600px;
+    max-width: 35rem;
     background-color: white;
     padding: .5rem;
     border-bottom: 1px solid #ccc;
@@ -111,9 +111,22 @@ i {
     display: inline-block;
 }
 
+@media (max-width: 500px) {
+    .row, ::placeholder {
+        font-size: 70%;
+    }
+
+    .header {
+        font-size: 1.75rem;
+    }
+}
+
 @media (max-width: 375px) {
     .row, ::placeholder {
         font-size: 70%;
     }
-}
 
+    .header {
+        font-size: 1.5rem;
+    }
+}
