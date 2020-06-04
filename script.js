@@ -44,10 +44,12 @@ document.addEventListener('DOMContentLoaded', (e) => {
         }
     }
     input.focus()
-    e.preventDefault();
 });
 
 const clickFunction = (e) => {
+    
+    // e.preventDefault();
+    // e.stopPropagation();
     
     const items = Array.from(main.children[0].children)
     
@@ -76,9 +78,6 @@ const clickFunction = (e) => {
         
         input.focus();
      }
-
-    e.preventDefault();
-    // e.stopPropagation();
 }
 
 main.addEventListener('click', clickFunction);
@@ -121,8 +120,6 @@ document.addEventListener('keypress', (e) => {
             input.value = ''
             input.focus();
         }
-            e.preventDefault();
-
     }
 })
 
