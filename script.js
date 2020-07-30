@@ -105,9 +105,9 @@ document.addEventListener('keypress', e => {
 
   if (e.which === 13 && input.value) {
     getTodos();
-    if (!isDuplicate(input.value)) {
+    if (!isDuplicate(input.value.trim())) {
       const newItem = {
-        itemText: input.value,
+        itemText: input.value.trim(),
         isChecked: false
       };
       todos.push(newItem);
