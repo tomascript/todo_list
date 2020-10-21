@@ -47,11 +47,11 @@ body {
   flex-wrap: nowrap;
 }
 
-#form-todo input[type='text'] {
+input[type='text'] {
   width: 90%;
   min-width: 170px;
   max-width: 35rem;
-  outline: medium;
+  outline: none;
   font: inherit;
   color: inherit;
   border: none;
@@ -88,11 +88,21 @@ body {
 }
 
 .icon-span {
-  display: none;
+  display: block;
+  outline: none;
+  margin: 0;
+  transform-origin: right;
+  transform: scaleX(0);
+  transition: transform 0.2s linear;
 }
 
 i {
   color: red;
+}
+
+i:last-of-type {
+  margin-left: 0.7rem;
+  color: orange;
 }
 
 i:hover {
@@ -106,21 +116,28 @@ i:hover {
 }
 
 .row:hover .icon-span {
-  display: inline-block;
+  transform: scaleX(1);
 }
 
 .checkout {
   text-decoration: line-through;
 }
 
-.show-remove {
-  display: inline-block;
+.row > div {
+  width: 85%;
+  border: none transparent;
+  background: transparent;
+}
+
+.row .edit-input {
+  margin: 0;
+  padding: 0;
 }
 
 @media (max-width: 500px) {
   .row,
   ::placeholder {
-    font-size: 70%;
+    font-size: 100%;
   }
 
   .header {

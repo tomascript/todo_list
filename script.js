@@ -1,4 +1,4 @@
-let todos, lis;
+let todos, lis, currentText;
 const main = document.querySelector('.main');
 const itemsList = main.querySelector('.items-list');
 const input = document.querySelector('#form-todo input[type="text"]');
@@ -33,9 +33,77 @@ const addItemToMarkup = (itemText, isChecked) => {
   itemsList.insertAdjacentHTML(
     'beforeend',
     `
-    <li class="${classToAdd}">${itemText}<span class="icon-span"><i class="fas fa-trash-alt"></i></span></li>
+    <li class="${classToAdd}"><div>${itemText}</div><span class="icon-span"><i class="fas fa-trash-alt"></i><i class="fas fa-pencil-alt"></i></span></li>
     `
   );
+};
+
+const clickFunction = e => {
+  e.stopPropagation();
+
+  getTodos();
+  lis = Array.from(itemsList.querySelectorAll('li'));
+  let clickedListItem;
+  const parent = e.target.parentNode;
+
+  if (e.target.nodeName === 'LI' && lis.includes(e.target)) {
+    clickedListItem = e.target;
+  }
+
+  if (parent.nodeName === 'LI' && lis.includes(parent)) {
+    clickedListItem = parent;
+  }
+  if (clickedListItem) {
+    clickedListItem.classList.toggle('checkout');
+
+    for (todo of todos) {
+      if (todo.itemText === clickedListItem.textContent) {
+        todo.isChecked = !todo.isChecked;
+        break;
+      }
+    }
+    locStorage.setItem('todos', JSON.stringify(todos));
+    return;
+  }
+
+  //delete
+  if (e.target.nodeName === 'I' && e.target.className === 'fas fa-trash-alt') {
+    const item = e.target.closest('li');
+    const updatedList = todos.filter(
+      todo => todo.itemText !== item.textContent
+    );
+    locStorage.setItem('todos', JSON.stringify(updatedList));
+    item.parentNode.removeChild(item);
+    input.focus();
+    return;
+  }
+
+  //edit
+  if (e.target.nodeName === 'I' && e.target.className === 'fas fa-pencil-alt') {
+    const currentListItem = e.target.parentNode.parentNode;
+    currentText = currentListItem.textContent;
+    const div = currentListItem.querySelector('div');
+    div.innerHTML = `<form id="editing"><input type="text" value="${currentText}" class="edit-input" selected /></form>`;
+    div.querySelector('input').select();
+    const edit = currentListItem.querySelector('#editing');
+    edit.onsubmit = e => {
+      e.preventDefault();
+      const newText = edit.firstChild.value.trim();
+      if (newText === '') return;
+      getTodos();
+      if (todos.find(todo => todo.itemText === newText)) return;
+      todos.forEach(todo => {
+        if (todo.itemText === currentText) {
+          todo.itemText = newText;
+        }
+      });
+      locStorage.setItem('todos', JSON.stringify(todos));
+      div.innerHTML = newText;
+      input.focus();
+    };
+    return;
+  }
+  location.reload();
 };
 
 document.addEventListener('DOMContentLoaded', e => {
@@ -49,45 +117,9 @@ document.addEventListener('DOMContentLoaded', e => {
   input.focus();
 });
 
-const clickFunction = e => {
-  // e.preventDefault();
-  //   e.stopPropagation();
-
-  getTodos();
-  lis = Array.from(itemsList.querySelectorAll('li'));
-
-  if (e.target.nodeName === 'LI' && lis.includes(e.target)) {
-    e.target.classList.toggle('checkout');
-
-    for (todo of todos) {
-      if (todo.itemText === e.target.textContent) {
-        todo.isChecked = !todo.isChecked;
-        break;
-      }
-    }
-    locStorage.setItem('todos', JSON.stringify(todos));
-    return;
-  }
-
-  if (e.target.nodeName === 'SPAN' || e.target.nodeName === 'I') {
-    const item = e.target.closest('li');
-    const updatedList = todos.filter(
-      todo => todo.itemText !== item.textContent
-    );
-
-    locStorage.setItem('todos', JSON.stringify(updatedList));
-    item.parentNode.removeChild(item);
-
-    input.focus();
-  }
-};
-
 main.addEventListener('click', clickFunction);
 
 deleteAllIcon.addEventListener('click', e => {
-  // e.preventDefault();
-  // e.stopPropagation();
-
   locStorage.removeItem('todos');
   lis = itemsList.querySelectorAll('li');
 
@@ -99,10 +131,7 @@ deleteAllIcon.addEventListener('click', e => {
   input.focus();
 });
 
-document.addEventListener('keypress', e => {
-  // e.preventDefault();
-  // e.stopPropagation();
-
+document.addEventListener('keydown', e => {
   if (e.which === 13 && input.value) {
     getTodos();
     if (!isDuplicate(input.value.trim())) {
@@ -118,4 +147,12 @@ document.addEventListener('keypress', e => {
     input.value = '';
     input.focus();
   }
+  if (e.which === 27) {
+    location.reload();
+  }
+});
+
+document.addEventListener('click', e => {
+  location.reload();
+  input.focus();
 });
