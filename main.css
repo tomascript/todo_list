@@ -87,6 +87,10 @@ input[type='text'] {
   justify-content: space-between;
 }
 
+.row > div:first-of-type:hover {
+  cursor: pointer;
+}
+
 .icon-span {
   display: block;
   outline: none;
